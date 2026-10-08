@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+
+work/
+deploy/
+sbom/
+SESSION-HANDOFF.md
+STATE.md
+ROADMAP.md
+.pytest_cache/
+.DS_Store

@@ -1,0 +1,53 @@
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reuse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      - uses: fsfe/reuse-action@ef1dfe28dda4d13f5d580f0444eb27dda9746e9b  # v5
+
+  tests:
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python3 -m pip install ".[test]"
+      # tests run against the installed wheel, not the source tree
+      - run: mv src src.off && python3 -m pytest -q -p no:cacheprovider
+
+  commit-discipline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          fetch-depth: 0
+      - name: subjects <= 72, Assisted-by line, no AI co-author trailer
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch -q origin ${{ github.base_ref }}
+            range="origin/${{ github.base_ref }}..HEAD"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] \
+               && git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="$(git rev-list --max-parents=0 HEAD)..${{ github.sha }}"
+          fi
+          bad=0
+          git log --no-merges --format='%s' $range | awk 'length($0)>72 {print "subject >72 chars: " $0; bad=1} END {exit bad}' || bad=1
+          if git log --no-merges --format='%(trailers)' $range | grep -iE '^Co-Authored-By:.*(claude|codex|openai|anthropic|copilot|gemini)'; then
+            echo "AI co-author trailer found"; bad=1
+          fi
+          for c in $(git rev-list --no-merges $range); do
+            git log -1 --format=%B $c | grep -qx 'Assisted by Claude (Anthropic).' || { echo "missing Assisted-by line: $c"; bad=1; }
+          done
+          exit $bad

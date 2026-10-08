@@ -1,0 +1,17 @@
+{
+  "name": "agent-gate",
+  "version": "0.1.0",
+  "description": "PreToolUse/PostToolUse gate mediating agent tool calls through a2a-compliance permits, recording every gated call to a signed receipt chain.",
+  "author": {
+    "name": "flxk1"
+  },
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "governance",
+    "a2a-compliance",
+    "hooks",
+    "permits"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}

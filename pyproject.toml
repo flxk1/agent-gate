@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-gate"
+version = "0.1.0"
+description = "The enforcement host: a PreToolUse gate and MCP proxy mediating agent tool calls through a2a-compliance permits, gated by loomground-drift and policy-compiler."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "AGPL-3.0-only"
+license-files = ["LICENSES/AGPL-3.0-only.txt"]
+authors = [{ name = "flxk1" }]
+dependencies = [
+    "a2a-compliance[schema,crypto] @ git+https://github.com/flxk1/a2a-compliance.git@914bef25bafbebdc8d255a64392f1c72a35aa894",
+    "policy-compiler @ git+https://github.com/flxk1/policy-compiler.git@d14e9a859661421738c3e0c8d2d79ae1941fbc2f",
+    "loomground-audit-chain @ git+https://github.com/flxk1/loomground-audit-chain.git@d70323c1664be4fba6e96f5d2e49251b63cb89d0",
+    "loomground-lock @ git+https://github.com/flxk1/loomground-lock.git@f99e24b79278f42c7fcfdf5394bb6aea8173a91f",
+    "loomground-drift @ git+https://github.com/flxk1/loomground-drift.git@e8279ec38255f278b978752fc13dffb51acfd448",
+    "loomground-lane @ git+https://github.com/flxk1/loomground-lane.git@9bac236ed7034b6183470e2a49137fde477d9b59",
+    "loomground-vertical @ git+https://github.com/flxk1/loomground-vertical.git@0de4fb4aa03399bc6799be0bf23c2bcbe9bc56e6",
+    "loomground-workspace @ git+https://github.com/flxk1/loomground-workspace.git@b022d61f7c5e5d3dae85cf037f09ec4d446a3eb7",
+    "loomground-governance @ git+https://github.com/flxk1/loomground-governance.git@82c7613e4a2247218a7281dd99933ed7c9e31218",
+    "cryptography>=41",
+]
+
+[project.optional-dependencies]
+erasure = [
+    "loomground-erasure @ git+https://github.com/flxk1/loomground-erasure.git@df098be5815e5dc418d36d397a8d9b24697279e7",
+]
+certification = [
+    "governance-certification @ git+https://github.com/flxk1/governance-certification.git@v0.2.0",
+]
+models = []
+test = ["pytest"]
+
+[project.scripts]
+agent-gate = "agent_gate.cli:main"
+agent-gate-hook = "agent_gate.gate.hook:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+agent_gate = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -26,9 +26,17 @@ Build a new repo, `agent-gate`, in the governance plane. It contains:
 1. **Gate.** `PreToolUse` hook and MCP proxy. Each call becomes an a2a
    `ControlRequest`. The call proceeds only through `consume_and_execute` with a
    permit whose action digest matches the actual tool and arguments. No permit
-   means hold, not allow.
-2. **Identity.** Session binding ported from the earlier engine (session id join, process
-   start-time bind). The permit's actor must equal the bound session.
+   means hold, not allow. This applies to calls with a risk footprint
+   (`gate.hook.classify`: irreversible or security-control `Bash` commands,
+   shell redirects and `Write`/`Edit`/`MultiEdit`/`NotebookEdit` into sensitive
+   paths). A call with no risk footprint is allowed without a permit and
+   yields no receipt, unless `AGENT_GATE_HOOK_STRICT` is `1`, `true` or `yes`
+   (case-sensitive, whitespace-trimmed), in which case it takes the permit path too.
+2. **Identity.** Each session id is bound to the process that owns it (the
+   hook's first non-shell ancestor, by pid and start time), file-backed as
+   `identity.SessionIdentity` in `sessions.json` under `AGENT_GATE_HOME`. A
+   session bound to another live process is refused. The permit's actor must
+   equal the bound session.
 3. **Locks and seals.** Egress lock and at-rest seal on folders, ported from
    the earlier engine's privacy lock. A folder is a scope coordinate and a sealable thing,
    never a container with its own policy.
@@ -60,7 +68,17 @@ a2a-compliance depends on agent-gate. ctrl may call it.
 
 ## Open questions
 
-1. Hook mode: block (`deny` on missing permit) or monitor first.
-2. Who signs gate receipts: a host key held by agent-gate, or evidence-emitter's signer port.
+1. Hook mode: resolved as `AGENT_GATE_HOOK_MODE`, default `monitor` (Felix,
+   2026-10-07); `monitor` records every gated call's receipt to the chain
+   under `AGENT_GATE_HOME` and never blocks; `enforce` is opt-in (missing
+   permit is a hold surfaced as `ask`, deny exits 2); `off` disables
+   evaluation. The plugin's hooks set no mode, so `monitor` holds.
+2. Who signs gate receipts: resolved as a host Ed25519 key held by agent-gate
+   under `AGENT_GATE_HOME` (created by `agent-gate init` or on first hook
+   use), registered for `ExecutionPermit` and `ToolReceipt` and verified
+   through `AgentKeyTrustStore`. Policy is the `.lg` patch at
+   `AGENT_GATE_POLICY`; without a policy that compiles, no footprinted call
+   is admitted.
 3. Whether the swarm desk reads presence from agent-gate instead of the earlier engine.
-4. Licence and visibility (private for now).
+4. Licence: AGPL-3.0-only, inherited from the earlier engine (Felix, 2026-10-07).
+   Visibility: private until all checks are green and Felix says publish.
