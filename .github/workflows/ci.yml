@@ -51,3 +51,15 @@ jobs:
             git log -1 --format=%B $c | grep -qx 'Assisted by Claude (Anthropic).' || { echo "missing Assisted-by line: $c"; bad=1; }
           done
           exit $bad
+
+  neutrality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      - name: no predecessor or vendor names in prose
+        # file paths the host reads (.claude-plugin/, .claude/settings.json, ~/.claude) are allowed
+        run: |
+          hits=$(git ls-files '*.md' NOTICE '.claude-plugin/*.json' \
+            | xargs sed -E 's#(~/)?\.claude(-plugin)?/?##g' \
+            | grep -inE 'r[v]nd|claude|anthropic' || true)
+          if [ -n "$hits" ]; then echo "$hits"; exit 1; fi

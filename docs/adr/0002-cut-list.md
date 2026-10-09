@@ -2,10 +2,10 @@
 
 Status: accepted (Felix, 2026-10-07)
 Date: 2026-10-07
-Supersedes the three-job scope of ADR 0001: agent-gate takes everything the earlier engine
-does that the Loomground family and a2a-compliance do not.
+Supersedes the three-job scope of ADR 0001: agent-gate takes everything the
+earlier enforcement engine does that the Loomground family and a2a-compliance do not.
 
-Source: a read-only inventory of the earlier engine server package (220 modules, ~64k
+Source: a read-only inventory of the earlier engine's server package (220 modules, ~64k
 LOC), each module checked against loomground-repos, a2a-compliance,
 policy-compiler, privacy-shield, evidence-emitter and oversight-ladder.
 Inventory tables are kept outside the repo.
@@ -38,8 +38,8 @@ Already extracted into family packages, which the earlier engine itself never im
 
 ## B. Rewrite as thin glue, do not port
 
-governance (`decide_action`), govern, oversight, operations: the earlier engine's policy
-engine. Replaced by one call path: loomground-drift breaker, then
+governance (`decide_action`), govern, oversight, operations: the earlier engine's
+policy engine. Replaced by one call path: loomground-drift breaker, then
 `policy_check`, then a2a `admit` / `issue_permit` / `consume_and_execute`.
 
 ## C. Model routing: optional extra

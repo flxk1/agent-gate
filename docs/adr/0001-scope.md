@@ -5,10 +5,11 @@ Date: 2026-10-07
 
 ## Context
 
-An earlier enforcement engine does three things Loomground repos cannot: intercept every tool call,
-know which session acted, and lock and seal folders. It also carries its own policy engine, per-folder policy loading
-and a console. Felix ruled on 2026-09-27 that it is too complicated to carry
-the music policy and the swarm desk.
+An earlier enforcement engine does three things Loomground repos cannot:
+intercept every tool call, know which session acted, and lock and seal
+folders. It also carries its own policy engine, per-folder policy loading and
+a console. Felix ruled on 2026-09-27 that it is too complicated to carry the
+music policy and the swarm desk.
 
 Meanwhile a2a-compliance (E0 to E5, merged 2026-09-16) provides admission,
 signed single-use permits, mediated execution, reconciliation and
@@ -60,8 +61,9 @@ a2a-compliance depends on agent-gate. ctrl may call it.
 
 - a2a's `mediated` grade becomes reachable on a real host.
 - The earlier engine overlaps with agent-gate. Retiring or shrinking it is a
-  separate decision for its owner, not taken here.
-- Porting identity and lock code from the earlier engine needs its owner's agreement.
+  separate decision, not taken here.
+- Porting identity and lock code from the earlier engine needs its owner's
+  agreement.
 - Enforcement is still only as strong as the host. Host hooks can be
   disabled by the user, so the honest default grade is `advisory` until the
   gate owns the maker's only credential or transport.
